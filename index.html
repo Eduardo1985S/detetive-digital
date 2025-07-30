@@ -1,316 +1,175 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cofre Secreto do Estudante</title>
+    <!-- Inclui Tailwind CSS para estilização -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inclui Confetti.js para o efeito de confete -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+      /* Define a fonte Inter para toda a página */
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      /* Estilos personalizados para a animação de fundo */
+      .animated-background {
+        background: url("./img/great-mountain-landscape.jpg") no-repeat center center fixed;
+        background-size: cover;
+      }
+
+      @keyframes gradientBG {
+        0% {
+          background-position: 0% 50%;
         }
-        .animated-background {
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+        50% {
+          background-position: 100% 50%;
         }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        100% {
+          background-position: 0% 50%;
         }
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #fff;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
+      }
+      /* Estilos para o spinner de carregamento */
+      .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid #fff;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        100% {
+          transform: rotate(360deg);
         }
-        #devtools-warning {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, #ff0000, #8b0000);
-            color: white;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            font-size: 2em;
-            text-align: center;
-            z-index: 99999;
-            flex-direction: column;
-        }
-        .blur-content {
-            filter: blur(10px);
-            pointer-events: none;
-        }
+      }
     </style>
-</head>
-<body class="flex items-center justify-center min-h-screen animated-background p-4">
-    <div id="devtools-warning">
-        <div>
-            <h1 style="font-size: 3em; margin-bottom: 20px;">🚫 ACESSO NEGADO</h1>
-            <p>DevTools detectado!</p>
-            <p>Feche as ferramentas de desenvolvimento para continuar.</p>
-            <div style="margin-top: 30px; font-size: 0.7em;">
-                <p>⚠️ Este sistema é protegido contra inspeção</p>
-            </div>
-        </div>
+  </head>
+  <body
+    class="flex items-center justify-center min-h-screen animated-background p-4"
+  >
+    <div
+      class="bg-white bg-opacity-90 p-8 rounded-2xl shadow-2xl w-full max-w-md text-center transform transition-all duration-500"
+    >
+      <h1 class="text-4xl font-extrabold text-gray-900 mb-6">Cofre Secreto</h1>
+      <p class="text-gray-700 mb-6 text-lg">
+        Insira a senha para revelar a mensagem especial:
+      </p>
+
+      <div class="mb-6">
+        <input
+          type="password"
+          id="passwordInput"
+          class="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-500 focus:border-blue-500 text-lg text-center"
+          placeholder="Digite a senha aqui"
+          aria-label="Campo de senha"
+        />
+      </div>
+
+      <button
+        id="revealButton"
+        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center"
+      >
+        <span id="buttonText">Revelar Mensagem</span>
+        <div id="loadingSpinner" class="spinner hidden ml-2"></div>
+      </button>
+
+      <div
+        id="messageContainer"
+        class="mt-8 p-6 bg-blue-50 bg-opacity-80 border-l-4 border-blue-500 text-blue-800 rounded-lg hidden"
+      >
+        <h2 class="text-2xl font-bold mb-3">Parabéns, Futuro Sucesso!</h2>
+        <p class="text-lg leading-relaxed">
+          Chegar ao último semestre é uma conquista incrível! Cada desafio
+          superado te trouxe até aqui. Lembre-se de todo o conhecimento que você
+          adquiriu e da força que você tem. Este é o momento de brilhar, de
+          aplicar tudo o que aprendeu e de construir o caminho para o seu
+          futuro. Mantenha o foco, a dedicação e a paixão. O sucesso está logo
+          ali! Conte com o seu potencial e com as pessoas que te apoiam. Você é
+          capaz de ir muito além!
+        </p>
+      </div>
+
+      <div
+        id="errorContainer"
+        class="mt-8 p-4 bg-red-50 bg-opacity-80 border-l-4 border-red-500 text-red-800 rounded-lg hidden"
+      >
+        <p class="font-bold">Senha Incorreta!</p>
+        <p>Por favor, tente novamente.</p>
+      </div>
     </div>
 
-    <div id="main-content" class="bg-white bg-opacity-90 p-8 rounded-2xl shadow-2xl w-full max-w-md text-center transform transition-all duration-500">
-        <h1 class="text-4xl font-extrabold text-gray-900 mb-6">Cofre Secreto</h1>
-        <p class="text-gray-700 mb-6 text-lg">Insira a senha para revelar a mensagem especial:</p>
+    <script type="module">
+      // Obtém referências para os elementos HTML
+      const passwordInput = document.getElementById("passwordInput");
+      const revealButton = document.getElementById("revealButton");
+      const messageContainer = document.getElementById("messageContainer");
+      const errorContainer = document.getElementById("errorContainer");
+      const buttonText = document.getElementById("buttonText");
+      const loadingSpinner = document.getElementById("loadingSpinner");
 
-        <div class="mb-6">
-            <input
-                type="password"
-                id="passwordInput"
-                class="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-500 focus:border-blue-500 text-lg text-center"
-                placeholder="Digite a senha aqui"
-                aria-label="Campo de senha"
-                autocomplete="off"
-                spellcheck="false"
-            >
-        </div>
+      // Define a senha correta (sem hífens)
+      const correctPassword = "20JSR5012";
 
-        <button
-            id="revealButton"
-            class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center"
-        >
-            <span id="buttonText">Revelar Mensagem</span>
-            <div id="loadingSpinner" class="spinner hidden ml-2"></div>
-        </button>
+      // Função para simular um atraso (para visualização do spinner)
+      const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
-        <div id="messageContainer" class="mt-8 p-6 bg-blue-50 bg-opacity-80 border-l-4 border-blue-500 text-blue-800 rounded-lg hidden">
-            <h2 class="text-2xl font-bold mb-3">Parabéns, Futuro Sucesso!</h2>
-            <p class="text-lg leading-relaxed">
-                Chegar ao último semestre é uma conquista incrível! Cada desafio superado te trouxe até aqui. Lembre-se de todo o conhecimento que você adquiriu e da força que você tem. Este é o momento de brilhar, de aplicar tudo o que aprendeu e de construir o caminho para o seu futuro. Mantenha o foco, a dedicação e a paixão. O sucesso está logo ali! Conte com o seu potencial e com as pessoas que te apoiam. Você é capaz de ir muito além!
-            </p>
-        </div>
+      // Função para mostrar o spinner e desativar o botão
+      function showLoading() {
+        buttonText.classList.add("hidden");
+        loadingSpinner.classList.remove("hidden");
+        revealButton.disabled = true;
+        revealButton.classList.add("opacity-70", "cursor-not-allowed");
+      }
 
-        <div id="errorContainer" class="mt-8 p-4 bg-red-50 bg-opacity-80 border-l-4 border-red-500 text-red-800 rounded-lg hidden">
-            <p class="font-bold">Senha Incorreta!</p>
-            <p>Por favor, tente novamente.</p>
-        </div>
-    </div>
+      // Função para esconder o spinner e reativar o botão
+      function hideLoading() {
+        buttonText.classList.remove("hidden");
+        loadingSpinner.classList.add("hidden");
+        revealButton.disabled = false;
+        revealButton.classList.remove("opacity-70", "cursor-not-allowed");
+      }
 
-    <script>
-        // ========== SENHA ==========
-        const _0x1a2b = ['20', 'JS', 'R', '50', '12'];
-        const _0x3c4d = _0x1a2b[0] + _0x1a2b[1] + _0x1a2b[2] + _0x1a2b[3] + _0x1a2b[4];
+      // Função para verificar a senha
+      async function checkPassword() {
+        showLoading(); // Mostra o spinner
+        await delay(800); // Simula um atraso para a "verificação"
 
-        // ========== LÓGICA PRINCIPAL ==========
-        const passwordInput = document.getElementById('passwordInput');
-        const revealButton = document.getElementById('revealButton');
-        const messageContainer = document.getElementById('messageContainer');
-        const errorContainer = document.getElementById('errorContainer');
-        const buttonText = document.getElementById('buttonText');
-        const loadingSpinner = document.getElementById('loadingSpinner');
+        const enteredPassword = passwordInput.value.trim(); // Pega o valor do input e remove espaços em branco
 
-        const delay = (ms) => new Promise(res => setTimeout(res, ms));
+        // Esconde mensagens anteriores
+        messageContainer.classList.add("hidden");
+        errorContainer.classList.add("hidden");
 
-        function showLoading() {
-            buttonText.classList.add('hidden');
-            loadingSpinner.classList.remove('hidden');
-            revealButton.disabled = true;
-            revealButton.classList.add('opacity-70', 'cursor-not-allowed');
+        if (enteredPassword === correctPassword) {
+          messageContainer.classList.remove("hidden"); // Mostra a mensagem de sucesso
+          passwordInput.value = ""; // Limpa o campo da senha
+          // Dispara o efeito de confete
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+          });
+        } else {
+          errorContainer.classList.remove("hidden"); // Mostra a mensagem de erro
+          passwordInput.value = ""; // Limpa o campo da senha
         }
+        hideLoading(); // Esconde o spinner
+      }
 
-        function hideLoading() {
-            buttonText.classList.remove('hidden');
-            loadingSpinner.classList.add('hidden');
-            revealButton.disabled = false;
-            revealButton.classList.remove('opacity-70', 'cursor-not-allowed');
+      // Adiciona um ouvinte de evento para o clique do botão
+      revealButton.addEventListener("click", checkPassword);
+
+      // Adiciona um ouvinte de evento para a tecla "Enter" no campo de senha
+      passwordInput.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+          checkPassword();
         }
-
-        async function checkPassword() {
-            if (devToolsOpen || warningShown) {
-                showNotification('🚫 Feche o DevTools primeiro!');
-                return;
-            }
-
-            showLoading();
-            await delay(800);
-
-            const enteredPassword = passwordInput.value.trim();
-
-            messageContainer.classList.add('hidden');
-            errorContainer.classList.add('hidden');
-
-            if (enteredPassword === _0x3c4d) {
-                messageContainer.classList.remove('hidden');
-                passwordInput.value = '';
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
-            } else {
-                errorContainer.classList.remove('hidden');
-                passwordInput.value = '';
-            }
-
-            hideLoading();
-        }
-
-        revealButton.addEventListener('click', checkPassword);
-        passwordInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                checkPassword();
-            }
-        });
-
-        // ========== PROTEÇÃO DEVTOOLS (mantida) ==========
-        let devToolsOpen = false;
-        let warningShown = false;
-
-        function showDevToolsWarning() {
-            if (!warningShown) {
-                document.getElementById('devtools-warning').style.display = 'flex';
-                document.getElementById('main-content').classList.add('blur-content');
-                document.body.style.overflow = 'hidden';
-                warningShown = true;
-                if (typeof console.clear === 'function') console.clear();
-            }
-        }
-
-        function hideDevToolsWarning() {
-            document.getElementById('devtools-warning').style.display = 'none';
-            document.getElementById('main-content').classList.remove('blur-content');
-            document.body.style.overflow = 'auto';
-            warningShown = false;
-        }
-
-        function detectDevToolsBySize() {
-            const threshold = 160;
-            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-            if (widthThreshold || heightThreshold) {
-                if (!devToolsOpen) {
-                    devToolsOpen = true;
-                    showDevToolsWarning();
-                }
-            } else {
-                if (devToolsOpen) {
-                    devToolsOpen = false;
-                    hideDevToolsWarning();
-                }
-            }
-        }
-
-        function detectDevToolsByDebugger() {
-            let start = performance.now();
-            debugger;
-            let end = performance.now();
-            if (end - start > 100) showDevToolsWarning();
-        }
-
-        let consoleElement = {};
-        Object.defineProperty(consoleElement, 'id', {
-            get: function() {
-                showDevToolsWarning();
-                return 'devtools-detected';
-            }
-        });
-        console.log('%c', consoleElement);
-
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            showNotification('🚫 Clique direito desabilitado!');
-        });
-
-        document.addEventListener('keydown', function(e) {
-            const keys = [
-                { code: 123, msg: 'F12' },
-                { code: 73, ctrl: true, shift: true, msg: 'DevTools' },
-                { code: 67, ctrl: true, shift: true, msg: 'Inspetor' },
-                { code: 74, ctrl: true, shift: true, msg: 'Console' },
-                { code: 85, ctrl: true, msg: 'Ver código fonte' },
-                { code: 83, ctrl: true, msg: 'Salvar página' }
-            ];
-
-            for (let k of keys) {
-                if (e.keyCode === k.code &&
-                    (!k.ctrl || e.ctrlKey) &&
-                    (!k.shift || e.shiftKey)) {
-                    e.preventDefault();
-                    showNotification(`🚫 ${k.msg} desabilitado!`);
-                    return false;
-                }
-            }
-        });
-
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: rgba(255, 0, 0, 0.9);
-                color: white;
-                padding: 15px 20px;
-                border-radius: 8px;
-                font-weight: bold;
-                z-index: 10000;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 3000);
-        }
-
-        function clearConsole() {
-            if (typeof console.clear === 'function') console.clear();
-            console.log = () => {};
-            console.warn = () => {};
-            console.error = () => {};
-            console.info = () => {};
-            console.debug = () => {};
-        }
-
-        let resizeTimer;
-        window.addEventListener('resize', function() {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => detectDevToolsBySize(), 100);
-        });
-
-        setInterval(detectDevToolsBySize, 300);
-        setInterval(detectDevToolsByDebugger, 1000);
-        setInterval(clearConsole, 500);
-
-        Object.defineProperty(window, '_0x3c4d', {
-            get: function() {
-                showDevToolsWarning();
-                return undefined;
-            }
-        });
-
-        document.addEventListener('paste', function(e) {
-            e.preventDefault();
-            showNotification('🚫 Colar desabilitado!');
-        });
-
-        window.addEventListener('load', function() {
-            setTimeout(clearConsole, 2000);
-        });
+      });
     </script>
-</body>
+  </body>
 </html>
