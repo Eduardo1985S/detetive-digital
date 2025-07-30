@@ -2,7 +2,7 @@
 
 ## 🎭 **A Missão**
 
-**Vinhedo, 2025.**
+**Veneza, 2025.**
 
 Um hacker misterioso deixou 4 pistas digitais espalhadas pela cidade. Você, um jovem programador detetive, precisa decifrá-las usando JavaScript para descobrir a **senha secreta** que desbloqueará arquivos importantes.
 
