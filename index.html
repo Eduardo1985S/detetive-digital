@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cofre Secreto do Estudante</title>
+    <!-- Inclui Tailwind CSS para estilização -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inclui Confetti.js para o efeito de confete -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <style>
+        /* Define a fonte Inter para toda a página */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Estilos personalizados para a animação de fundo */
+        .animated-background {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        /* Estilos para o spinner de carregamento */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen animated-background p-4">
+    <div class="bg-white bg-opacity-90 p-8 rounded-2xl shadow-2xl w-full max-w-md text-center transform transition-all duration-500">
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-6">Cofre Secreto</h1>
+        <p class="text-gray-700 mb-6 text-lg">Insira a senha para revelar a mensagem especial:</p>
+
+        <div class="mb-6">
+            <input
+                type="password"
+                id="passwordInput"
+                class="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-500 focus:border-blue-500 text-lg text-center"
+                placeholder="Digite a senha aqui"
+                aria-label="Campo de senha"
+            >
+        </div>
+
+        <button
+            id="revealButton"
+            class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center"
+        >
+            <span id="buttonText">Revelar Mensagem</span>
+            <div id="loadingSpinner" class="spinner hidden ml-2"></div>
+        </button>
+
+        <div id="messageContainer" class="mt-8 p-6 bg-blue-50 bg-opacity-80 border-l-4 border-blue-500 text-blue-800 rounded-lg hidden">
+            <h2 class="text-2xl font-bold mb-3">Parabéns, Futuro Sucesso!</h2>
+            <p class="text-lg leading-relaxed">
+                Chegar ao último semestre é uma conquista incrível! Cada desafio superado te trouxe até aqui. Lembre-se de todo o conhecimento que você adquiriu e da força que você tem. Este é o momento de brilhar, de aplicar tudo o que aprendeu e de construir o caminho para o seu futuro. Mantenha o foco, a dedicação e a paixão. O sucesso está logo ali! Conte com o seu potencial e com as pessoas que te apoiam. Você é capaz de ir muito além!
+            </p>
+        </div>
+
+        <div id="errorContainer" class="mt-8 p-4 bg-red-50 bg-opacity-80 border-l-4 border-red-500 text-red-800 rounded-lg hidden">
+            <p class="font-bold">Senha Incorreta!</p>
+            <p>Por favor, tente novamente.</p>
+        </div>
+    </div>
+
+    <script type="module">
+        // Obtém referências para os elementos HTML
+        const passwordInput = document.getElementById('passwordInput');
+        const revealButton = document.getElementById('revealButton');
+        const messageContainer = document.getElementById('messageContainer');
+        const errorContainer = document.getElementById('errorContainer');
+        const buttonText = document.getElementById('buttonText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        // Define a senha correta (sem hífens)
+        const correctPassword = "20JSR5012";
+
+        // Função para simular um atraso (para visualização do spinner)
+        const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
+        // Função para mostrar o spinner e desativar o botão
+        function showLoading() {
+            buttonText.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+            revealButton.disabled = true;
+            revealButton.classList.add('opacity-70', 'cursor-not-allowed');
+        }
+
+        // Função para esconder o spinner e reativar o botão
+        function hideLoading() {
+            buttonText.classList.remove('hidden');
+            loadingSpinner.classList.add('hidden');
+            revealButton.disabled = false;
+            revealButton.classList.remove('opacity-70', 'cursor-not-allowed');
+        }
+
+        // Função para verificar a senha
+        async function checkPassword() {
+            showLoading(); // Mostra o spinner
+            await delay(800); // Simula um atraso para a "verificação"
+
+            const enteredPassword = passwordInput.value.trim(); // Pega o valor do input e remove espaços em branco
+
+            // Esconde mensagens anteriores
+            messageContainer.classList.add('hidden');
+            errorContainer.classList.add('hidden');
+
+            if (enteredPassword === correctPassword) {
+                messageContainer.classList.remove('hidden'); // Mostra a mensagem de sucesso
+                passwordInput.value = ''; // Limpa o campo da senha
+                // Dispara o efeito de confete
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            } else {
+                errorContainer.classList.remove('hidden'); // Mostra a mensagem de erro
+                passwordInput.value = ''; // Limpa o campo da senha
+            }
+            hideLoading(); // Esconde o spinner
+        }
+
+        // Adiciona um ouvinte de evento para o clique do botão
+        revealButton.addEventListener('click', checkPassword);
+
+        // Adiciona um ouvinte de evento para a tecla "Enter" no campo de senha
+        passwordInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                checkPassword();
+            }
+        });
+    </script>
+</body>
+</html>
